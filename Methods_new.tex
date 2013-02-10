@@ -122,11 +122,11 @@ z_{fio,t+T}&=z_{fio,t}+T(\theta_{fi,t}\tau_{fi}n_{fi}g(v_{fi,t})-2\tau_{fi}z_{fi
 
 \subsection{Estimation}
 
-To begin we define a generic nonlinear system where the state matrix and observer function are some function of the staes such that \begin{align}
+To begin we define a generic nonlinear system where the state matrix and observer function are some function of the states such that \begin{align}
 \dot{x}(t) = A(x(t),\theta(t)) + B(u(t)) + n(t)
 y(t)  = C(x(t)) +r(t),
 \end{align}
-The unscented Kalman filter consists of two steps a prediction (model propogation) and correction step. In the prediction step model states are propagated through the system
+The unscented Kalman filter consists of two steps a prediction (model propagation) and correction step. In the prediction step model states are propagated through the system
 
 The estimation technique considered in this paper is that of the unscented Kalman filter. The unscented Kalman filter is capable of estimating both states and parameters (dual estimation). This is achieved by augmenting parameters to the state matrix. The model parameters that are estimated are then assumed to have trivial dynamics such that \begin{align}
 E(\theta_{k,t+T}) = E(\theta_{k,t}),

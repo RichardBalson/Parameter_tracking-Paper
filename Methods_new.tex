@@ -126,11 +126,20 @@ To begin we define a generic nonlinear system where the state matrix and observe
 \dot{x}(t) = A(x(t),\theta(t)) + B(u(t)) + n(t)
 y(t)  = C(x(t)) +r(t),
 \end{align}
-The unscented Kalman filter consists of two steps a prediction (model propagation) and correction step. In the prediction step model states are propagated through the system
+
+The unscented Kalman filter consists of two steps a prediction (model propagation) and correction step. In the prediction step model states are propagated through the system.
+
+The prediction step makes use of an unscented tranform in order to propagate the system nonlinearity.
+
+Results from the unscented transform are then used to determine our expectation of the value for each state as well as its uncertainty (variance).
+
+The correction step is the same as that in a linear Kalman filter.
 
 The estimation technique considered in this paper is that of the unscented Kalman filter. The unscented Kalman filter is capable of estimating both states and parameters (dual estimation). This is achieved by augmenting parameters to the state matrix. The model parameters that are estimated are then assumed to have trivial dynamics such that \begin{align}
 E(\theta_{k,t+T}) = E(\theta_{k,t}),
 \end{align} where E(\cdot) is the expectation.
+
+
 
 
 %The estimation method used was originally described by Kalman, and later developed by Ulah for nonlinear parameter estimation.

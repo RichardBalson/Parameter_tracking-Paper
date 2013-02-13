@@ -123,7 +123,7 @@ z_{fio,t+T}&=z_{fio,t}+T(\theta_{fi,t}\tau_{fi}n_{fi}g(v_{fi,t})-2\tau_{fi}z_{fi
 \subsection{Estimation}
 
 To begin we define a generic nonlinear system where \begin{align}
-\mathbf{\dot{x}}(t)} = \mathbf{A}(\mathbf{x}(t),\mathbf{\theta}(t)) + \mathbf{B}(\mathbf{u}(t)) + \mathbf{n}(t)
+\mathbf{\dot{x}}(t) = \mathbf{A}(\mathbf{x}(t),\mathbf{\theta}(t)) + \mathbf{B}(\mathbf{u}(t)) + \mathbf{n}(t)
 \mathbf{y}(t)  = \mathbf{C}(\mathbf{x}(t)) +\mathbf{r}(t),
 \end{align} with $x(t)$ the state vector and $\dot{x}(t)$ its derivative where
 \[ \dot{x}(t) = \left[ \begin{array}[pos]{c}
@@ -131,31 +131,52 @@ To begin we define a generic nonlinear system where \begin{align}
 \vdots \\
 \dot{x}_{n}(t) \end{array} \right] .\]  $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$ are the state, input and output matrices and $u(t)$ the input to the model. $\mathbf{y}(t)$ is the model output with $\mathbf{n}(t)$ the model noise, or uncertainty and $\mathbf{r}(t)$ the measurement error, or observation noise. Here $\mathbf{n}(t)$ takes into account that the model is not a perfect descriptor of the particular region of the brain, and $\mathbf{r}(t)$ describes the maximum amplitude of the noise in the observations. Both $\mathbf{n}(t)$ and $\mathbf{r}(t)$ are zero mean Gaussian distributions with a system dependant variance. It is important to note that this assumption of a Gaussian distribution is only valid when the number of samples for the estimation procedure is large.
 
-Estimation is usually performed to estimate the model states $x(t)$ given some observation $y(t)$ . One method that is often use for estimation linear systems in the Kalman filter. The Kalman filter consists of two steps: prediction and correction. In the prediction step model states are propagated through the system in order to give an estimate of the expected value of the states at the next time step. Using a first order Euler method this can be described by \begin{align}
+Estimation is usually performed to estimate the model states $x(t)$ given some observation $y(t)$ . One method that is often use for estimation linear systems in the Kalman filter. The Kalman filter consists of two steps: prediction and correction. In the prediction step model states are propagated through the system in order to give an estimate of the expected value of the states at the next time step. Using a first order Euler-Maruyama method this can be described by \begin{align}
 \mathbf{x}_{t+T}^{-} = \mathbf{x}_{t} + T\mathbf{A}(\mathbf{x}_{t}) +\sqrt{T}\mathbf{n}_{t}
-\end{align} where the subscript in $x_{t}^{-}$ is used to indicate a discrete time description and$T$ is the sampling period. The superscript in $x_{t}^{-}$ is used to indicate that this estimate is a prediction that has not yet been corrected by the current observation. Performing this kind of prediction for a nonlinear system would be inaccurate. The reason for this is that propagation of states like this in a system would require the assumption that the error in the states remains constant for all time. However, in a nonlinear system this is not true, as states error can vary drastically across time steps. In other words if the original state estimate is incorrect in a nonlinear system it is possible that the error can increase from one step to the next, which is not the case for  linear system. In order to account for this error, or state covariance changing an unscented filter is used in the prediction step for nonlinear systems. The advantage of an unscented filter over local linearisation techniques is both speed is improved and discontinuities can still be modeled. 
+\label{eqn: YProp}
+\mathbf{y}_{t+T}^{-}  = \mathbf{y}_{t} + T\mathbf{C}(\mathbf{y}_{t}) +\sqrt{T}\mathbf{r}_{t}
+\end{align} where the subscript in $x_{t}^{-}$ is used to indicate a discrete time description and $T$ is the sampling period. The superscript in $x_{t}^{-}$ is used to indicate that this estimate is a prediction that has not yet been corrected by the current observation. Performing this kind of prediction for a nonlinear system would be inaccurate. The reason for this is that propagation of states like this in a system would require the assumption that the error in the states remains constant for all time. However, in a nonlinear system this is not true, as states error can vary drastically across time steps. In other words if the original state estimate is incorrect in a nonlinear system it is possible that the error can increase from one step to the next, which is not the case for  linear system. In order to account for this error, or state covariance changing an unscented filter is used in the prediction step for nonlinear systems. The advantage of an unscented filter over local linearisation techniques is both speed is improved and discontinuities can still be modeled. 
 
 The unscented filter is completely described by the states mean and covariance such that we can draw sigma points that are defined as  \begin{align}
 \label{eqn: Unscented_Transform1}
-\mathbf{\mathcal{X}}_{n} &= \mathbf{\overline{x}}_{t} + (\sqrt{\kappa+D_{x}\mathbf{P_{xx}}})_{n} \quad n=1,\hdots,D_x\\
+\mathbf{\mathcal{x}}_{n} &= \mathbf{\overline{x}}_{t} + (\sqrt{\kappa+D_{x}\mathbf{P_{xx,t}}})_{n} \quad n=1,\hdots,D_x\\
 \label{eqn: Unscented_Transform2}
-\mathbf{\mathcal{X}}_{n+D_{x}} &= \mathbf{\overline{x}}_{t} - (\sqrt{\kappa+D_{x}\mathbf{P_{xx}}})_{n} \quad n=1,\hdots,D_x,
-\end{align} where $\mathbf{\overline{x}}_{t}$ is the current state estimate. $D_{x}$ is the number of states in the system and $\mathbf{P_{xx}}$ is the covariance matrix or expected error of the current state estimate. $\kappa$ is a predefined constant which determine the relative effect of the propagation of the mean. For now if $\kappa$ is equal to zero than the system mean is not propagated as a sigma point. However, if $\kappa$ is greater than zero then \begin{align}
+\mathbf{\mathcal{x}}_{n+D_{x}} &= \mathbf{\overline{x}}_{t} - (\sqrt{\kappa+D_{x}\mathbf{P_{xx,t}}})_{n} \quad n=1,\hdots,D_x,
+\end{align} where $\mathbf{\overline{x}}_{t}$ is the current state estimate. $\sqrt{\cdot}_{n}$ denotes the $n$th row or column of the matrix square root. $D_{x}$ is the number of states in the system and $\mathbf{P_{xx,t}}$ is the covariance matrix or expected error of the current state estimate. $\kappa$ is a predefined constant which determine the relative effect of the propagation of the mean. For now if $\kappa$ is equal to zero than the system mean is not propagated as a sigma point. However, if $\kappa$ is greater than zero then \begin{align}
 \mathbf{\mathcal{X}}_{0} &= \mathbf{\overline{x}}_{t}.
-\end{align} Now their are 2$D_{x}$ sigma points when $\kappa$ is zero or 2$D_{x}$+1 sigma points when it is greater than zero. These sigma needs to be propagated through the system in oder to update our expectation about the state mean and error. 
+\end{align} Now their are 2$D_{x}$ sigma points when $\kappa$ is zero or 2$D_{x}$+1 sigma points when it is greater than zero. These sigma points are then propagated through the system in oder to update the expectation about the state mean and error. \begin{align}
+\mathbf{\mathcal{x}}_{n,t+T} &= \mathbf{\mathcal{x}}_{t}+ T\mathbf{A}(\mathbf{\mathcal{x}}_{n,t}) +\sqrt{T}{n}_{t}\\
+\overline{\mathbf{x}}_{t+T}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} \mathbf{\mathcal{x}}_{n,t+T}\\
+\mathbf{P}_{xx,t+T}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{x}}_{n,t+T} -\mathbf{\overline{x}}_{t+T}^{-})(\mathbf{\mathcal{x}}_{n,t+T}-\mathbf{\overline{x}}_{t+T}^{-})^{\top} \mathbf{Q}.
+\end{align} Here $\overline{\mathbf{x}}_{t+T}^{-}$ and $\mathbf{P}_{xx,t+T}^{-}$ are the predictions for the state and state covariance matrices. The superscript $a^{-}$ is used to indicate an uncorrected prediction. $\mathbf{Q}$ is the expectation of the model error $n_{t}$. Further, it is possible to make a prediction about the observation at time $t+T$ by propagating the sigma points through equation~\ref{eqn: YProp} \begin{align} 
+\mathbf{\mathcal{y}}_{n,t+T} &= \mathbf{\mathcal{y}}_{t} + T\mathbf{C}(\mathbf{\mathcal{x}}_{n,t})+ \sqrt{T}{r}_{t}\\
+\overline{\mathbf{y}}_{t+T}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} \mathbf{\mathcal{y}}_{n,t+T}\\
+\label{eqn: statecovg}
+\mathbf{P}_{xy,t+T}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{x}}_{n,t+T}-\mathbf{x}_{n,t+T}) (\mathbf{\mathcal{y}}_{n,t+T}-\overline{\mathbf{y}}_{t+T}^{-})^{\top}\\
+\mathbf{P}_{yy,t+T}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{y}}_{n,t+T}-\overline{\mathbf{y}}_{t+T}^{-}) (\mathbf{\mathcal{y}}_{n,t+T}-\overline{\mathbf{y}}_{t+T}^{-})^{\top} +\mathbf{R},
+\end{align} where $\overline{\mathbf{y}}_{t+T}^{-}$ and $\mathbf{P}_{yy,t+T}^{-}$ are the predictions for the model output and its covariance. $\mathbf{P}_{xy,t+T}^{-}$ is the covariance matrix of the states and observations. Lastly, $\mathbf{R}$ is the expectation of the observation error $r_{t}$.
 
-These predictions need to now be used to determine the expected state mean as well as the expected error. The expected mean and error are calculated as follows 
+The predictions of the states ($\overline{\mathbf{x}}_{t+T}^{-}$) and observations ($\overline{\mathbf{y}}_{t+T}^{-}$) now need to be corrected based on the observations. This is achieved by \begin{align}
+\mathbf{K} &= \mathbf{P}_{xy,t+T}^{-}(\mathbf{P}_{yy,t+T}^{-})^{-1}\\
+\mathbf{x}_{t+T} &= \overline{\mathbf{x}}_{t+T}^{-} + \mathbf{K}(\mathbf{y}_{t+T}-\overline{\mathbf{y}}_{t+T}^{-})\\
+\mathbf{P}_{xx,t+T} &= \mathbf{P}_{xx,t+T}^{-} - \mathbf{K}(\mathbf{P}_{xy,t+T}^{-})^{\top},
+\end{align} where $\mathbf{y}_{t}$ is the recording or observation made, $\mathbf{x}_{t+T}$ is estimate of the state and $\mathbf{P}_{xx,t+T}$ is the estimate of the error on the state. This set of equations describes the UKF and how it can be used to estimate states. However, for this study estimation of states and parameters needs to be achieved (dual estimation).
 
-
-Results from the unscented transform are then used to determine our expectation of the value for each state as well as its uncertainty (variance).
-
-The correction step is the same as that in a linear Kalman filter.
-
-When considering parameter tracking we need to augment parameters to our state matrix and assign the parameters dynamics.
-
-The estimation technique considered in this paper is that of the unscented Kalman filter. The unscented Kalman filter is capable of estimating both states and parameters (dual estimation). This is achieved by augmenting parameters to the state matrix. The model parameters that are estimated are then assumed to have trivial dynamics such that \begin{align}
-E(\theta_{k,t+T}) = E(\theta_{k,t}),
-\end{align} where $E(\cdot)$ is the expectation.
+Firstly, reconsider the extended neural mass model. The parameters that are being estimated are $\theta_{p}$, $\theta_{e}$, $\theta_{si}$ and $\theta_{fi}$. Here it is assumed that \begin{align}
+\theta_{p} = \theta_{e}.
+\end{align} Therefore, three parameters need to be estimated, and a parameter matrix is defined
+\[ \mathbf{\theta}_{t} = \left[ \begin{array}[pos]{c}
+\theta_{p,t}\\
+\theta_{si,t} \\
+\theta_{fi,t} \end{array} \right] .\] This parameter matrix is then augmented to the original state matrix
+\[ \mathbf{x}_{t} = \left[ \begin{array}[pos]{c}
+\mathbf{x}_{t}\\
+\mathbf{\theta}_{t} \end{array} \right] .\] Note that parameters will now be referred to as slow states, to allow for ease of reference to the newly defined state matrix. The next issue to consider is the description of the dynamics for the slow states. Due to the prediction correction steps of the unscented Kalman filter these slow states can be assigned trivial dynamics such that
+\begin{align}
+\mathbf{\theta}_{t+T} = \mathbf{\theta}_{t} + \mathbf{\eta_{t}}\\
+E(\mathbf{\theta}_{t+T}) = \mathbf{\theta}_{t}\\
+P_{\mathbf{\theta} \mathbf{\theta,t+T}} = \mathbf{\Psi},
+\end{align} where $E(\cdot)$ is the expectation function and $\mathbf{\eta}_{t}\longmapsto N(0,\mathbf{\sigma})$.
 
 When initialising the unscented Kalman filter the uncertainty and standard deviation of the model needs to be specified.
 

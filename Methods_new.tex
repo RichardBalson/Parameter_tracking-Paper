@@ -122,22 +122,35 @@ z_{fio,t+T}&=z_{fio,t}+T(\theta_{fi,t}\tau_{fi}n_{fi}g(v_{fi,t})-2\tau_{fi}z_{fi
 
 \subsection{Estimation}
 
-To begin we define a generic nonlinear system where the state matrix and observer function are some function of the states such that \begin{align}
+To begin we define a generic nonlinear system where \begin{align}
 \dot{x}(t) = A(x(t),\theta(t)) + B(u(t)) + n(t)
 y(t)  = C(x(t)) +r(t),
-\end{align}
+\end{align} with $x(t)$ the state vector and $\dot{x}(t)$ its derivative where
+\[ \dot{x}(t) = \left[ \begin{array}[pos]{c}
+\dot{x}_{1}(t)\\
+\vdots \\
+\dot{x}_{n}(t) \end{array} \right] .\]  $A$, $B$ and $C$ are the state, input and output matrices and $u(t)$ the input to the model. $y(t)$ is the model output where $n(t)$ is the model noise, or uncertainty and $r(t)$ is the measurement error, or observation noise.
 
 The unscented Kalman filter consists of two steps a prediction (model propagation) and correction step. In the prediction step model states are propagated through the system.
 
-The prediction step makes use of an unscented tranform in order to propagate the system nonlinearity.
+The prediction step makes use of an unscented transform in order to propagate the system nonlinearity.
 
 Results from the unscented transform are then used to determine our expectation of the value for each state as well as its uncertainty (variance).
 
 The correction step is the same as that in a linear Kalman filter.
 
+When considering parameter tracking we need to augment parameters to our state matrix and assign the parameters dynamics.
+
 The estimation technique considered in this paper is that of the unscented Kalman filter. The unscented Kalman filter is capable of estimating both states and parameters (dual estimation). This is achieved by augmenting parameters to the state matrix. The model parameters that are estimated are then assumed to have trivial dynamics such that \begin{align}
 E(\theta_{k,t+T}) = E(\theta_{k,t}),
-\end{align} where E(\cdot) is the expectation.
+\end{align} where $E(\cdot)$ is the expectation.
+
+When initialising the unscented Kalman filter the uncertainty and standard deviation of the model needs to be specified.
+
+The model parameters and input are limited in estimation to stay within their physiological range.
+
+To determine how reliable the estimation procedure is the effect of noise, initialisation of states and parameters.
+
 
 
 

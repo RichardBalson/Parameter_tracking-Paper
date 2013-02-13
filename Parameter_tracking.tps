@@ -5,13 +5,13 @@ Version=2
 [SessionInfo]
 ActiveTab=3
 FrameCount=3
-ActiveFrame=0
+ActiveFrame=1
 
 [Frame0]
 Columns=1
 Rows=1
-Flags=2
-ShowCmd=3
+Flags=0
+ShowCmd=1
 MinPos.x=-1
 MinPos.y=-1
 MaxPos.x=-8
@@ -24,23 +24,23 @@ Class=CLatexEdit
 Document=Parameter_tracking.tex
 
 [Frame0_Row0]
-cyCur=762
+cyCur=476
 cyMin=10
 
 [Frame0_Col0]
-cxCur=1693
+cxCur=1423
 cxMin=10
 
 [Frame0_View0,0]
-Cursor.row=39
-Cursor.column=29
-TopSubLine=11
+Cursor.row=71
+Cursor.column=0
+TopSubLine=43
 
 [Frame1]
 Columns=1
 Rows=1
-Flags=0
-ShowCmd=1
+Flags=2
+ShowCmd=3
 MinPos.x=-1
 MinPos.y=-1
 MaxPos.x=-8
@@ -53,17 +53,17 @@ Class=CLatexEdit
 Document=Methods_new.tex
 
 [Frame1_Row0]
-cyCur=474
+cyCur=762
 cyMin=10
 
 [Frame1_Col0]
-cxCur=1427
+cxCur=1693
 cxMin=10
 
 [Frame1_View0,0]
-Cursor.row=76
-Cursor.column=28
-TopSubLine=95
+Cursor.row=131
+Cursor.column=265
+TopSubLine=129
 
 [Frame2]
 Columns=1
@@ -92,5 +92,5 @@ cxMin=10
 [Frame2_View0,0]
 Cursor.row=251
 Cursor.column=0
-TopSubLine=299
+TopSubLine=305
 

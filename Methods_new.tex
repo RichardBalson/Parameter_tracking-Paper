@@ -22,7 +22,7 @@ g(v(t)) = \frac{g_{max}}{1+exp(r(v(t)-v_{0}))}\\
 \label{eqn: Convert}
 v_{k}(t) = h_{k}(t)*g(v(t))\\
 \label{eqn: Kernel} 
-h_{k}(t) = \frac{\theta_{k}(t)t}{\tau_{k}}exp\left(-\frac{t}{\tau_{k}}\right).
+h_{k}(t) = \frac{\theta_{k}(t)}{\tau_{k}}texp\left(-\frac{t}{\tau_{k}}\right).
 \end{align} Here the subscript $k$ is used to indicate that each neural population is described with a different synaptic gain and time constant. The synaptic gains are described by $\theta_{k}$ as they are the parameters that are altered in order to simulate artificial seizure EEG (Figure~\ref{fig: SeizureSim}). Further, the synaptic gains will be the variables that are estimated in this study. In this description of the Wendling model numerous model parameters are considered to be stationary, this includes the maximum firing rate~($g_{max}$) and time constants~($\tau_{k}$). 
 \begin{figure}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	\centering
@@ -40,19 +40,19 @@ Equations~\ref{eqn: Convert}-\ref{eqn: Kernel} can be converted into a set of tw
 \label{eqn: FR2PSP1}
 \dot{v}_{k}(t)&= z_{k}(t)\\
 \label{eqn: FR2PSP2}
-\dot{z}_{k}(t)&=\theta_{k}(t)\tau_{k}n_{k}u_{k}(t)-2\tau_{k}z_{k}(t)-\tau_{k}^{2}v_{k}(t).
+\dot{z}_{k}(t)&=\frac{\theta_{k}(t)}{\tau_{k}}n_{k}u_{k}(t)-2\frac{z_{k}(t)}{\tau_{k}}-\frac{v_{k}(t)}{\tau_{k}^{2}}.
 \end{align} Here $v_{k}(t)$ is the average membrane potential and $z_{k}(t)$ is its derivative. $\theta_{k}(t)$ and $\tau_{k}$ are the specific neural populations synaptic gain and time constant. Lastly, $u_{k}(t)$ is the firing rate to the specific neural population considered and $n_{k}$ is a constant used to specify connectivity.
 
 \red{Full mathematical description of the model}
 Using equations~\ref{eqn: FR2PSP1}-\ref{eqn: FR2PSP2} the model can be described by a set of eight stochastic differential equations \begin{align}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 dv_{po}(t)&= z_{po}(t)dt\\
-dz_{po}(t)&=(\theta_{p}(t)\tau_{p}n_{p}g(v_{p}(t))-2\tau_{p}z_{po}(t)-\tau_{p}^{2}v_{po}(t))dt\\
+dz_{po}(t)&=\left(\frac{\theta_{p}(t)}{\tau_{p}}n_{p}g(v_{p}(t))-2\frac{z_{po}(t)}{\tau_{p}}-\frac{v_{po}(t)}{\tau_{p}^{2}}\right)dt\\
 dv_{eo}(t)&= z_{eo}(t)dt\\
-dz_{eo}(t)&=(\theta_{e}(t)\tau_{e}(\mu +n_{e}g(v_{e}(t))-2\tau_{e}z_{eo}(t)-\tau_{e}^{2}v_{eo}(t))dt + \theta_{e}(t)\tau_{e}\epsilon(t)dW\\
+dz_{eo}(t)&=\left(\frac{\theta_{e}(t)}{\tau_{e}}(\mu +n_{e}g(v_{e}(t))-2\frac{z_{eo}(t)}{\tau_{e}}-\frac{v_{eo}(t)}{\tau_{e}^{2}}\right)dt + \frac{\theta_{e}(t)}{\tau_{e}}\epsilon(t)dW\\
 dv_{sio}(t)&= z_{sio}(t)dt\\
-dz_{sio}(t)&=(\theta_{si}(t)\tau_{si}n_{si}g(v_{si}(t))-2\tau_{si}z_{sio}(t)-\tau_{si}v_{sio}(t))dt\\
+dz_{sio}(t)&=\left(\frac{\theta_{si}(t)}{\tau_{si}}n_{si}g(v_{si}(t))-2\frac{z_{sio}(t)}{\tau_{si}}-\frac{v_{sio}(t)}{\tau_{si}^{2}}\right)dt\\
 dv_{fio}(t)&= z_{fio}(t)dt\\
-dz_{fio}(t)&=(\theta_{fi}(t)\tau_{fi}n_{fi}g(v_{fi}(t))-2\tau_{fi}z_{fio}(t)-\tau_{fi}v_{fio}(t))dt.
+dz_{fio}(t)&=\left(\frac{\theta_{fi}(t)}{\tau_{fi}}n_{fi}g(v_{fi}(t))-2\frac{z_{fio}(t)}{\tau_{fi}}-\frac{v_{fio}(t)}{\tau_{fi}^{2}}\right)dt.
 \end{align} $dW$ represents a Wiener process and is required as $\epsilon(t)\longmapsto N(0,\sigma)$. Here $\sigma$ and $\mu$ describe the mean and variance of the stochastic model input. Further, $v_{ko}(t) $ and $z_{ko}(t) $ represent the membrane potential produced by each neural population. $v_{k}(t) $ and $z_{k}(t) $ are the inputs to each neural population, and are considered to be the membrane potential of the specific population. $k$ takes the values of $p$, $e$, $fi$ and $si$ representing pyramidal, excitatory, and slow and fast inhibitory populations, respectively. Therefore $v_{p}(t) $ is the output of the model. All $v_{k}(t) $ can be described in terms of $v_{ko}(t) $ as follows \begin{align}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 v_{p}(t) &= v_{eo}(t)-v_{sio}(t)-v_{fio}(t)\\
 v_{e}(t) &= c_{1}v_{po}(t)\\
@@ -68,13 +68,13 @@ n_{fi} &=c_{7}.
 \red{Simulation of model}
 This set of continuous stochastic differential equations is discretised using Euler-Mariyama's method, to simulate the artificial EEG. \begin{align}
 v_{po,t+T}&=v_{po,t}+Tz_{po,t}\\
-z_{po,t+T}&=z_{po,t}+T(\theta_{p,t}\tau_{p}n_{p}g(v_{p,t})-2\tau_{p}z_{po,t}-\tau_{p}^{2}v_{po,t})\\
+z_{po,t+T}&=z_{po,t}+T\left(\frac{\theta_{p,t}}{\tau_{p}}n_{p}g(v_{p,t})-2\frac{z_{po,t}}{\tau_{p}}-\frac{v_{po,t}}{\tau_{p}^{2}}\right)\\
 v_{eo,t+T}&=v_{eo,t}+Tz_{eo,t}\\
-z_{eo,t+T}&=z_{eo,t}+T(\theta_{e,t}\tau_{e}(\mu +n_{e}g(v_{e,t})-2\tau_{e}z_{eo,t}-\tau_{e}^{2}v_{eo,t})) + \sqrt{T}\theta_{e,t}\tau_{e}\epsilon_{t}\\
+z_{eo,t+T}&=z_{eo,t}+T\left(\frac{\theta_{e,t}}{\tau_{e}}(\mu +n_{e}g(v_{e,t})-2\frac{z_{eo,t}}{\tau_{e}}-\frac{v_{eo,t}}{\tau_{e}^{2}}\right) + \sqrt{T}\frac{\theta_{e,t}}{\tau_{e}}\epsilon_{t}\\
 v_{sio,t+T}&=v_{sio,t}+Tz_{sio,t}\\
-z_{sio,t+T}&=z_{sio,t}+T(\theta_{si,t}\tau_{si}n_{si}g(v_{si,t})-2\tau_{si}z_{sio,t}-\tau_{si}v_{sio,t})\\
+z_{sio,t+T}&=z_{sio,t}+T\left(\frac{\theta_{si,t}}{\tau_{si}}n_{si}g(v_{si,t})-2\frac{z_{sio,t}}{\tau_{si}}-\frac{v_{sio,t}}{\tau_{si}^{2}}\right)\\
 v_{fio,t+T}&=v_{fio,t}+Tz_{fio,t}\\
-z_{fio,t+T}&=z_{fio,t}+T(\theta_{fi,t}\tau_{fi}n_{fi}g(v_{fi,t})-2\tau_{fi}z_{fio,t}-\tau_{fi}v_{fio,t}).
+z_{fio,t+T}&=z_{fio,t}+T\left(\frac{\theta_{fi,t}}{\tau_{fi}}n_{fi}g(v_{fi,t})-2\frac{z_{fio,t}}{\tau_{fi}}-\frac{v_{fio,t}}{\tau_{fi}^{2}}\right).
 \end{align} Here $T$ is the period between solutions. The static parameter values are demonstrated in  Tables~\ref{tab: Static}-\ref{tab: Connectivity}. The variance of the input ($\sigma$) is specified such that 99.7\% of realisations drawn from the Gaussian distribution fall within the specified maximum and minimum firing rate. In this case, the firing rate limits are set to 30 and 150. For the cases where the realisations from the Gaussian distribution are not contained within the limits specified, the specific sample of interest is redrawn from the same Gaussain distribution until the firing rate falls within the specified range. In Table~\ref{tab: Static} the parameters $\theta_{p,t}$, $\theta_{e,t}$, $\theta_{si,t}$ and $\theta_{fi,t}$ are not specified as these parameters will vary for different simulations. However,for this simulation it is assumed that \begin{align}
 \theta_{p,t} = \theta_{e,t}.
 \end{align}
@@ -122,6 +122,7 @@ z_{fio,t+T}&=z_{fio,t}+T(\theta_{fi,t}\tau_{fi}n_{fi}g(v_{fi,t})-2\tau_{fi}z_{fi
 
 \subsection{Estimation}
 
+\red{Generic description on a nonlinear system}
 To begin we define a generic nonlinear system where \begin{align}
 \mathbf{\dot{x}}(t) = \mathbf{A}(\mathbf{x}(t),\mathbf{\theta}(t)) + \mathbf{B}(\mathbf{u}(t)) + \mathbf{n}(t)
 \mathbf{y}(t)  = \mathbf{C}(\mathbf{x}(t)) +\mathbf{r}(t),
@@ -131,12 +132,14 @@ To begin we define a generic nonlinear system where \begin{align}
 \vdots \\
 \dot{x}_{n}(t) \end{array} \right] .\]  $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$ are the state, input and output matrices and $u(t)$ the input to the model. $\mathbf{y}(t)$ is the model output with $\mathbf{n}(t)$ the model noise, or uncertainty and $\mathbf{r}(t)$ the measurement error, or observation noise. Here $\mathbf{n}(t)$ takes into account that the model is not a perfect descriptor of the particular region of the brain, and $\mathbf{r}(t)$ describes the maximum amplitude of the noise in the observations. Both $\mathbf{n}(t)$ and $\mathbf{r}(t)$ are zero mean Gaussian distributions with a system dependant variance. It is important to note that this assumption of a Gaussian distribution is only valid when the number of samples for the estimation procedure is large.
 
+\red{Introduction to the UKF}
 Estimation is usually performed to estimate the model states $x(t)$ given some observation $y(t)$ . One method that is often use for estimation linear systems in the Kalman filter. The Kalman filter consists of two steps: prediction and correction. In the prediction step model states are propagated through the system in order to give an estimate of the expected value of the states at the next time step. Using a first order Euler-Maruyama method this can be described by \begin{align}
 \mathbf{x}_{t+T}^{-} = \mathbf{x}_{t} + T\mathbf{A}(\mathbf{x}_{t}) +\sqrt{T}\mathbf{n}_{t}
 \label{eqn: YProp}
 \mathbf{y}_{t+T}^{-}  = \mathbf{y}_{t} + T\mathbf{C}(\mathbf{y}_{t}) +\sqrt{T}\mathbf{r}_{t}
 \end{align} where the subscript in $x_{t}^{-}$ is used to indicate a discrete time description and $T$ is the sampling period. The superscript in $x_{t}^{-}$ is used to indicate that this estimate is a prediction that has not yet been corrected by the current observation. Performing this kind of prediction for a nonlinear system would be inaccurate. The reason for this is that propagation of states like this in a system would require the assumption that the error in the states remains constant for all time. However, in a nonlinear system this is not true, as states error can vary drastically across time steps. In other words if the original state estimate is incorrect in a nonlinear system it is possible that the error can increase from one step to the next, which is not the case for  linear system. In order to account for this error, or state covariance changing an unscented filter is used in the prediction step for nonlinear systems. The advantage of an unscented filter over local linearisation techniques is both speed is improved and discontinuities can still be modeled. 
 
+\red{The unscented filter}
 The unscented filter is completely described by the states mean and covariance such that we can draw sigma points that are defined as  \begin{align}
 \label{eqn: Unscented_Transform1}
 \mathbf{\mathcal{x}}_{n} &= \mathbf{\overline{x}}_{t} + (\sqrt{\kappa+D_{x}\mathbf{P_{xx,t}}})_{n} \quad n=1,\hdots,D_x\\
@@ -156,12 +159,14 @@ The unscented filter is completely described by the states mean and covariance s
 \mathbf{P}_{yy,t+T}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{y}}_{n,t+T}-\overline{\mathbf{y}}_{t+T}^{-}) (\mathbf{\mathcal{y}}_{n,t+T}-\overline{\mathbf{y}}_{t+T}^{-})^{\top} +\mathbf{R},
 \end{align} where $\overline{\mathbf{y}}_{t+T}^{-}$ and $\mathbf{P}_{yy,t+T}^{-}$ are the predictions for the model output and its covariance. $\mathbf{P}_{xy,t+T}^{-}$ is the covariance matrix of the states and observations. Lastly, $\mathbf{R}$ is the expectation of the observation error $r_{t}$.
 
+\red{How states are predicted using the unscented transform}
 The predictions of the states ($\overline{\mathbf{x}}_{t+T}^{-}$) and observations ($\overline{\mathbf{y}}_{t+T}^{-}$) now need to be corrected based on the observations. This is achieved by \begin{align}
 \mathbf{K} &= \mathbf{P}_{xy,t+T}^{-}(\mathbf{P}_{yy,t+T}^{-})^{-1}\\
 \mathbf{x}_{t+T} &= \overline{\mathbf{x}}_{t+T}^{-} + \mathbf{K}(\mathbf{y}_{t+T}-\overline{\mathbf{y}}_{t+T}^{-})\\
 \mathbf{P}_{xx,t+T} &= \mathbf{P}_{xx,t+T}^{-} - \mathbf{K}(\mathbf{P}_{xy,t+T}^{-})^{\top},
 \end{align} where $\mathbf{y}_{t}$ is the recording or observation made, $\mathbf{x}_{t+T}$ is estimate of the state and $\mathbf{P}_{xx,t+T}$ is the estimate of the error on the state. This set of equations describes the UKF and how it can be used to estimate states. However, for this study estimation of states and parameters needs to be achieved (dual estimation).
 
+\red{Definition of slow state matrix and its dynamics}
 Firstly, reconsider the extended neural mass model. The parameters that are being estimated are $\theta_{p}$, $\theta_{e}$, $\theta_{si}$ and $\theta_{fi}$. Here it is assumed that \begin{align}
 \theta_{p} = \theta_{e}.
 \end{align} Therefore, three parameters need to be estimated, and a parameter matrix is defined
@@ -173,16 +178,26 @@ Firstly, reconsider the extended neural mass model. The parameters that are bein
 \mathbf{x}_{t}\\
 \mathbf{\theta}_{t} \end{array} \right] .\] Note that parameters will now be referred to as slow states, to allow for ease of reference to the newly defined state matrix. The next issue to consider is the description of the dynamics for the slow states. Due to the prediction correction steps of the unscented Kalman filter these slow states can be assigned trivial dynamics such that
 \begin{align}
+\label{eqn: parameterdynamics}
 \mathbf{\theta}_{t+T} = \mathbf{\theta}_{t} + \mathbf{\eta_{t}}\\
 E(\mathbf{\theta}_{t+T}) = \mathbf{\theta}_{t}\\
 P_{\mathbf{\theta} \mathbf{\theta,t+T}} = \mathbf{\Psi},
 \end{align} where $E(\cdot)$ is the expectation function and $\mathbf{\eta}_{t}\longmapsto N(0,\mathbf{\sigma})$.
 
-When initialising the unscented Kalman filter the uncertainty and standard deviation of the model needs to be specified.
+\red{Intialisation of UKF for stationary parameters}
+When initialising the unscented Kalman filter the uncertainty and standard deviation of the model needs to be specified. Initial estimations are performed under the assumption that the model's slow states are stationary. This assumption allows the uncertainty in slow states to be minimal. The reason for this being that this uncertainty in this case describes only model inaccuracy and not the trivial dynamics of the slow states. Standard deviations in the estimation description are described such that one standard deviation from the midpoint of the specified states range encompasses all possible values for the particular state. Further to this the uncertainty of states directly affected by the stochastic model input is increased to account for the randomness of this signal when simulating. This is required as a stochastic process such as this cannot, at present, be estimated accurately. 
 
-The model parameters and input are limited in estimation to stay within their physiological range.
+\red{Intialisation of UKF for varying parameters}
+Secondly, estimation of varying slow states required the addition of the trivial dynamics described in equation~\ref{eqn: parameterdynamics}. It is assumed that the uncertianty of the model error and slow state dynamics are additive.
 
-To determine how reliable the estimation procedure is the effect of noise, initialisation of states and parameters.
+\red{Estimation of model input mean}
+Lastly, estimation of the stochastic inputs mean to the neural mass is considered. In order to achieve this it is assumed that the model input mean can be assumed to be varying slowly, similarly to the model's slow states. By doing so the input mean can be augmented to the state matrix and assigned trivial dynamics. 
+
+\red{UKF estimation bounds and initialsation of states}
+When performing estimation, the results on the model's slow states are bounded by their physiological range as specified by \cite{wendling2002epileptic}. Further, the initial estimate of the model states is described as a Gaussian with the mean specified as the midpoint of the states range and the standard deviation set such that 99.9\% of realisations are within the specified physiolgical range of the specific state. 
+
+\red{Robustness test}
+To determine how robust the estimation procedure is the effect of noise and varying initialisations of the model states are considered. Further, the ability of the estimation procedure to estimate varying slow states, with different rates of change is determined. 
 
 
 
